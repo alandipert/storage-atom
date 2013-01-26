@@ -1,4 +1,4 @@
-(defproject alandipert/storage-atom "1.0.0"
+(defproject alandipert/storage-atom "1.0.1"
   :description "ClojureScript atoms backed by HTML5 web storage."
   :url "https://github.com/alandipert/storage-atom"
   :license {:name "Eclipse Public License"
