@@ -27,4 +27,11 @@
 (assert (= (get-in @a3 [:x :y :z]) 42))
 (assert (= (:some (meta a3)) :metadata))
 
+;;; add/remove-watch should return the storage-atom (like Clojure does)
+;;; CLJS doesn't return the atom, but the doc doesn't specify return.
+;;; Anyway, we'll return it Clojure-style.
+
+(assert (= a3 (add-watch a3 :foo (constantly nil))))
+(assert (= a3 (remove-watch a3 :foo)))
+
 (.log js/console "__exit__")

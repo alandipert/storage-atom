@@ -33,9 +33,9 @@
     (doseq [[key f] @watches]
       (f key this oldval newval)))
   (-add-watch [this key f]
-    (core/swap! watches assoc key f))
+    (core/swap! watches assoc key f) this)
   (-remove-watch [this key]
-    (core/swap! watches dissoc key))
+    (core/swap! watches dissoc key) this)
 
   IStorageAtom
   (-reset! [a newval]
