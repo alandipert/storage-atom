@@ -13,7 +13,7 @@ persisted with [HTML5 Web Storage](http://en.wikipedia.org/wiki/Web_storage).
 ### Dependency
 
 ```clojure
-[alandipert/storage-atom "1.0.0"]
+[alandipert/storage-atom "1.0.1"]
 ```
 
 ### Example
