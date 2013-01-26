@@ -1,6 +1,5 @@
 (ns alandipert.storage-atom
-  (:require [cljs.reader :refer [read-string]]
-            [cljs.core   :as core]))
+  (:use [cljs.reader :only [read-string]]))
 
 (defprotocol IStorageBackend
   "Represents a storage resource."
@@ -16,28 +15,25 @@
   (-commit! [this value]
     (.setItem store (pr-str key) (pr-str value))))
 
-(defn atom* [init backend opts]
-  (let [startval (let [existing (-get backend ::none)]
-                   (if (= existing ::none) init existing))]
-    (doto (apply atom startval opts)
-      (add-watch ::storage-watch #(-commit! backend %4))
-      (swap! identity))))
+(defn store
+  [atom backend]
+  (let [existing (-get backend ::none)]
+    (if (= ::none existing) (-commit! backend @atom))
+    (add-watch atom ::storage-watch #(-commit! backend %4))
+    atom))
 
-(defn storage-atom
-  "Creates and returns an HTML storage-backed atom.  If key in the
-   storage is set, its corresponding value is read and becomes the
-   initial value.  Otherwise, the initial value is init.
+(defn html-storage
+  [atom storage k]
+  (store atom (StorageBackend. storage k)))
 
-   Takes zero or more additional options:
+(defn local-storage
+  [atom k]
+  (html-storage atom js/localStorage k))
 
-   :meta metadata-map.  Metadata is *not* persisted.
+(comment
+  
+  (def prefs (html-storage (atom {}) js/localStorage ::foo))
+  (swap! prefs assoc :bg-color "red")
+  (:bg-color @prefs) ;=> "red"
 
-   :validator validate-fn.  Validator is *not* persisted.
-
-   If metadata-map is supplied, it will become the metadata on the
-   atom. validate-fn must be nil or a side-effect-free fn of one
-   argument, which will be passed the intended new state on any state
-   change. If the new state is unacceptable, the validate-fn should
-   return false or throw an exception."
-  [init store key & opts]
-  (atom* init (StorageBackend. store key) opts))
+  )
