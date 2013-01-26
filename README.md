@@ -6,7 +6,7 @@ provides a reference type similar to the
 [native atom](http://clojure.org/atoms), except that storage-atoms are
 persisted with [HTML5 Web Storage](http://en.wikipedia.org/wiki/Web_storage).
 
-[![Build Status](https://secure.travis-ci.org/alandipert/storage-atom.png?branch=master)](http://travis-ci.org/alandipert/storage-atom)
+[![Build Status](https://travis-ci.org/alandipert/storage-atom.png?branch=master)](https://travis-ci.org/alandipert/storage-atom)
 
 ## Usage
 
