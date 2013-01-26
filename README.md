@@ -41,7 +41,7 @@ persisted with [HTML5 Web Storage](http://en.wikipedia.org/wiki/Web_storage).
 
 (sa/swap! prefs assoc :bg-color "red")
 
-(:bg-color @prefs ;=> "red"
+(:bg-color @prefs) ;=> "red"
 (.getItem js/localStorage "\"prefs\"") ;=> "{:bg-color \"red\"}"
 ```
 
@@ -53,6 +53,10 @@ that can be printed readably may be used as storage keys or values.
 I haven't done any performance testing, but this approach is much
 slower than using web storage directly because the entire atom contents
 are written on every `swap!`.
+
+[enduro](https://github.com/alandipert/enduro) is a Clojure library
+that provides similar functionality by using files or a database for
+storage.
 
 ## Testing
 
