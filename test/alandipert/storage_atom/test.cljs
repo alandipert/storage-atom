@@ -3,16 +3,16 @@
 
 (def a1 (sa/storage-atom {} js/localStorage "k1"))
 
-(sa/swap! a1 assoc :x 10)
+(swap! a1 assoc :x 10)
 (assert (= (:x @a1) 10))
 
-(sa/reset! a1 123)
+(reset! a1 123)
 (assert (= (.getItem js/localStorage "\"k1\"") "123"))
 
 (def cnt (atom 0))
 (add-watch a1 :x (fn [_ _ _ _] (swap! cnt inc)))
-(sa/reset! a1 {})
-(sa/swap! a1 assoc "computers" "rule")
+(reset! a1 {})
+(swap! a1 assoc "computers" "rule")
 (assert (= 2 @cnt))
 
 (def a2 (sa/storage-atom 0 js/sessionStorage :foo :validator even?))
@@ -26,12 +26,5 @@
 
 (assert (= (get-in @a3 [:x :y :z]) 42))
 (assert (= (:some (meta a3)) :metadata))
-
-;;; add/remove-watch should return the storage-atom (like Clojure does)
-;;; CLJS doesn't return the atom, but the doc doesn't specify return.
-;;; Anyway, we'll return it Clojure-style.
-
-(assert (= a3 (add-watch a3 :foo (constantly nil))))
-(assert (= a3 (remove-watch a3 :foo)))
 
 (.log js/console "__exit__")

@@ -2,9 +2,8 @@
 
 storage-atom is a
 [ClojureScript](https://github.com/clojure/clojurescript) library that
-provides a reference type similar to the
-[native atom](http://clojure.org/atoms), except that storage-atoms are
-persisted with [HTML5 Web Storage](http://en.wikipedia.org/wiki/Web_storage).
+provides an easy way to create atoms backed by
+[HTML5 Web Storage](http://en.wikipedia.org/wiki/Web_storage).
 
 [![Build Status](https://travis-ci.org/alandipert/storage-atom.png?branch=master)](https://travis-ci.org/alandipert/storage-atom)
 
@@ -13,7 +12,7 @@ persisted with [HTML5 Web Storage](http://en.wikipedia.org/wiki/Web_storage).
 ### Dependency
 
 ```clojure
-[alandipert/storage-atom "1.0.1"]
+[alandipert/storage-atom "1.1.0"]
 ```
 
 ### Example
@@ -39,9 +38,7 @@ persisted with [HTML5 Web Storage](http://en.wikipedia.org/wiki/Web_storage).
            (fn [_ _ _ v]
              (.log js/console "new preference" v)))
 
-;; sa/swap! is similar to Clojure's swap!.
-
-(sa/swap! prefs assoc :bg-color "red")
+(swap! prefs assoc :bg-color "red")
 
 (:bg-color @prefs) ;=> "red"
 (.getItem js/localStorage "\"prefs\"") ;=> "{:bg-color \"red\"}"
