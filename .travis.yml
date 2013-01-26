@@ -1,2 +1,6 @@
 language: clojure
-script: lein cljsbuild test
+lein: lein2
+script: lein2 cljsbuild test
+jdk:
+  - openjdk7
+  - openjdk6
