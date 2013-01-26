@@ -18,7 +18,9 @@
 (defn store
   [atom backend]
   (let [existing (-get backend ::none)]
-    (if (= ::none existing) (-commit! backend @atom))
+    (if (= ::none existing)
+      (-commit! backend @atom)
+      (reset! atom existing))
     (add-watch atom ::storage-watch #(-commit! backend %4))
     atom))
 
@@ -32,8 +34,10 @@
 
 (comment
   
-  (def prefs (html-storage (atom {}) js/localStorage ::foo))
+  (def prefs (local-storage (atom {}) ::foo))
+
   (swap! prefs assoc :bg-color "red")
+
   (:bg-color @prefs) ;=> "red"
 
   )

@@ -18,20 +18,23 @@ provides an easy way to create atoms backed by
 ### Example
 
 ```clojure
-;; Require or use alandipert.storage-atom in your
-;; namespace. The primary functions it provides are storage-atom, swap!, reset!.
+;; Require or use alandipert.storage-atom in your namespace.
+;; The primary functions it provides are store, html-storage, and local-storage.
+;; It also provides the IStorageBackend protocol.
 
 (ns your-ns
   (:require [alandipert.storage-atom :as sa])
 
-;; Call sa/storage-atom with a value, a store, and a key within the store
-;; to use.  If the key in storage isn't set, it will be initialized with
-;; value.  If the key already points to a value, your initial value will
-;; be ignored and the existing data will be read.
+;; Persist atom to HTML localStorage. The sa/local-storage function takes an
+;; atom and a key to store with, and returns the atom. If the key in storage
+;; isn't set it will be initialized with the value obtained by dereferencing
+;; the provided atom. Otherwise the atom's value will be reset! with the value
+;; obtained from localStorage. All subsequent swap! and reset! operations on
+;; the atom will cause the value in localStorage to be updated.
 
-(def prefs (sa/storage-atom {} js/localStorage "prefs")
+(def prefs (sa/local-storage (atom {}) :prefs)
 
-;; You can add watches to storage atoms like regular atoms.
+;; You can use the atom normally now---values are transparently persisted.
 
 (add-watch prefs
            :new
@@ -41,7 +44,10 @@ provides an easy way to create atoms backed by
 (swap! prefs assoc :bg-color "red")
 
 (:bg-color @prefs) ;=> "red"
-(.getItem js/localStorage "\"prefs\"") ;=> "{:bg-color \"red\"}"
+
+;; Check that current value has been stored in localStorage.
+
+(.getItem js/localStorage ":prefs") ;=> "{:bg-color \"red\"}"
 ```
 
 ## Notes
