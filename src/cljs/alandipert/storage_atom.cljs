@@ -1,5 +1,5 @@
 (ns alandipert.storage-atom
-  (:use [cljs.reader :only [read-string]]))
+  (:require [cljs.reader :refer [read-string]]))
 
 (defprotocol IStorageBackend
   "Represents a storage resource."
@@ -21,8 +21,8 @@
     (if (= ::none existing)
       (-commit! backend @atom)
       (reset! atom existing))
-    (add-watch atom ::storage-watch #(-commit! backend %4))
-    atom))
+    (doto atom
+      (add-watch ::storage-watch #(-commit! backend %4)))))
 
 (defn html-storage
   [atom storage k]
@@ -32,12 +32,6 @@
   [atom k]
   (html-storage atom js/localStorage k))
 
-(comment
-  
-  (def prefs (local-storage (atom {}) ::foo))
-
-  (swap! prefs assoc :bg-color "red")
-
-  (:bg-color @prefs) ;=> "red"
-
-  )
+(defn session-storage
+  [atom k]
+  (html-storage atom js/sessionStorage k))

@@ -12,29 +12,29 @@ provides an easy way to create atoms backed by
 ### Dependency
 
 ```clojure
-[alandipert/storage-atom "1.1.0"]
+[alandipert/storage-atom "1.1.1"]
 ```
 
 ### Example
 
 ```clojure
 ;; Require or use alandipert.storage-atom in your namespace.
-;; The primary functions it provides are store, html-storage, and local-storage.
+;; The primary functions it provides are html-storage and local-storage.
 ;; It also provides the IStorageBackend protocol.
 
 (ns your-ns
-  (:require [alandipert.storage-atom :as sa])
+  (:require [alandipert.storage-atom :refer [local-storage]]))
 
-;; Persist atom to HTML localStorage. The sa/local-storage function takes an
+;; Persist atom to HTML localStorage. The local-storage function takes an
 ;; atom and a key to store with, and returns the atom. If the key in storage
 ;; isn't set it will be initialized with the value obtained by dereferencing
 ;; the provided atom. Otherwise the atom's value will be reset! with the value
 ;; obtained from localStorage. All subsequent swap! and reset! operations on
 ;; the atom will cause the value in localStorage to be updated.
 
-(def prefs (sa/local-storage (atom {}) :prefs)
+(def prefs (local-storage (atom {}) :prefs))
 
-;; You can use the atom normally now---values are transparently persisted.
+;; You can use the atom normally now - values are transparently persisted.
 
 (add-watch prefs
            :new
@@ -65,8 +65,8 @@ storage.
 
 ## Testing
 
-[PhantomJS](http://phantomjs.org/) is used for unit testing.  With it
-installed, you can run the tests with:
+[PhantomJS](http://phantomjs.org/) 1.7.0 or higher is used for unit
+testing.  With it installed, you can run the tests with:
 
     lein cljsbuild test
 

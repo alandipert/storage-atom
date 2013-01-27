@@ -1,4 +1,4 @@
-(defproject alandipert/storage-atom "1.1.0"
+(defproject alandipert/storage-atom "1.1.1"
   :description "ClojureScript atoms backed by HTML5 web storage."
   :url "https://github.com/alandipert/storage-atom"
   :license {:name "Eclipse Public License"
@@ -8,6 +8,7 @@
   :cljsbuild {:builds {:test
                        {:source-paths ["test"]
                         :compiler {:output-to "public/test.js"
-                                   :optimizations :advanced}
+                                   :optimizations :advanced
+                                   }
                         :jar false}}
               :test-commands {"unit" ["phantomjs" "test/runner.js"]}})
