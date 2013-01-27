@@ -1,8 +1,5 @@
 before_install:
-  - wget http://phantomjs.googlecode.com/files/phantomjs-1.8.1-linux-x86_64.tar.bz2
-  - tar -xf phantomjs-1.8.1-linux-x86_64.tar.bz2
-  - sudo rm -rf /usr/local/phantomjs
-  - sudo mv phantomjs-1.8.1-linux-x86_64.tar.bz2 /usr/local/phantomjs
+  - echo $(which phantomjs)
 
 language: clojure
 lein: lein2
