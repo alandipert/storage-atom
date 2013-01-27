@@ -65,8 +65,8 @@ storage.
 
 ## Testing
 
-[PhantomJS](http://phantomjs.org/) 1.7.0 or higher is used for unit
-testing.  With it installed, you can run the tests with:
+[PhantomJS](http://phantomjs.org/) 1.7.0 is used for unit testing.
+With it installed, you can run the tests like so:
 
     lein cljsbuild test
 

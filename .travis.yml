@@ -1,6 +1,3 @@
-before_install:
-  - echo $(which phantomjs)
-
 language: clojure
 lein: lein2
 script: lein2 cljsbuild test
