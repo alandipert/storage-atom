@@ -1,5 +1,5 @@
 (ns alandipert.storage-atom
-  (:require [cljs.reader :refer [read-string]]))
+  (:require [tailrecursion.cljson :refer [clj->cljson cljson->clj]]))
 
 (defprotocol IStorageBackend
   "Represents a storage resource."
@@ -9,11 +9,11 @@
 (deftype StorageBackend [store key]
   IStorageBackend
   (-get [this not-found]
-    (if-let [existing (.getItem store (pr-str key))]
-      (read-string existing)
+    (if-let [existing (.getItem store (clj->cljson key))]
+      (cljson->clj existing)
       not-found))
   (-commit! [this value]
-    (.setItem store (pr-str key) (pr-str value))))
+    (.setItem store (clj->cljson key) (clj->cljson value))))
 
 (defn store
   [atom backend]
