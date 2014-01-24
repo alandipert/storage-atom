@@ -12,7 +12,7 @@ provides an easy way to create atoms backed by
 ### Dependency
 
 ```clojure
-[alandipert/storage-atom "1.1.1"]
+[alandipert/storage-atom "1.1.2"]
 ```
 
 ### Example
