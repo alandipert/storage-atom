@@ -23,10 +23,6 @@
 ;;; Can't test the 'update' event, because it's only fired
 ;;; when changes come from another window.
 
-;; ;; manually update the local storage
-;; (sa/-commit! (sa/StorageBackend. js/sessionStorage :foo) "local")
-;; (assert (= @a2 "local"))
-
 (def a3 (local-storage
          (atom {:x {:y {:z 42}}} :meta {:some :metadata}) "k3"))
 

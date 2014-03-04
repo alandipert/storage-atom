@@ -5,6 +5,11 @@ storage-atom is a
 provides an easy way to create atoms backed by
 [HTML5 Web Storage](http://en.wikipedia.org/wiki/Web_storage).
 
+Any change in the atom will be saved into the web storage.
+
+The reverse is also true. This means that an atom modified in a tab
+ or a window will also be modified in all of them.
+
 [![Build Status](https://travis-ci.org/alandipert/storage-atom.png?branch=master)](https://travis-ci.org/alandipert/storage-atom)
 
 ## Usage
@@ -62,6 +67,10 @@ are written on every `swap!`.
 [enduro](https://github.com/alandipert/enduro) is a Clojure library
 that provides similar functionality by using files or a database for
 storage.
+
+The cross-window propagation doesn't always work if browsing the
+`.html` directly instead of passing throught a webserver.
+(Yes Chrome, I'm looking at you...)
 
 ## Testing
 
