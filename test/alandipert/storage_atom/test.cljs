@@ -1,5 +1,6 @@
 (ns alandipert.storage-atom.test
-  (:require [alandipert.storage-atom :refer [local-storage]]))
+  (:require [alandipert.storage-atom :refer [local-storage load-local-storage] :as sa]
+            [tailrecursion.cljson :refer [clj->cljson cljson->clj]]))
 
 ;;; localStorage tests
 
@@ -16,11 +17,21 @@
 
 (def a2 (local-storage (atom 0 :validator even?) :foo))
 (assert (= @a2 0))
+(assert (= @a2 0 (load-local-storage :foo)))
+
+
+;;; Can't test the 'update' event, because it's only fired
+;;; when changes come from another window.
+
+;; ;; manually update the local storage
+;; (sa/-commit! (sa/StorageBackend. js/sessionStorage :foo) "local")
+;; (assert (= @a2 "local"))
 
 (def a3 (local-storage
          (atom {:x {:y {:z 42}}} :meta {:some :metadata}) "k3"))
 
 (assert (= (get-in @a3 [:x :y :z]) 42))
 (assert (= (:some (meta a3)) :metadata))
+
 
 (.log js/console "__exit__")

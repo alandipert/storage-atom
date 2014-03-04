@@ -22,10 +22,38 @@
       (-commit! backend @atom)
       (reset! atom existing))
     (doto atom
-      (add-watch ::storage-watch #(-commit! backend %4)))))
+      (add-watch ::storage-watch #(when-not (= %3 %4)
+                                    (-commit! backend %4))))))
+
+(defn maybe-load-backend
+  [atom k e]
+  (let [sk (cljson->clj (.-key e))]
+    (when (= sk k) ;; is the stored key the one we are looking for?
+      (let [value (cljson->clj (.-newValue e))]
+        (reset! atom value)))))
+
+(defn link-storage
+  [atom k]
+  (.addEventListener js/window "storage"
+                     #(maybe-load-backend atom k %)))
+
+;;; mostly for tests
+
+(defn load-html-storage
+  [storage k]
+  (-get (StorageBackend. storage k) nil))
+
+(defn load-local-storage [k]
+  (load-html-storage js/localStorage k))
+
+(defn load-session-storage [k]
+  (load-html-storage js/sessionStorage k))
+
+;;; main API
 
 (defn html-storage
   [atom storage k]
+  (link-storage atom k)
   (store atom (StorageBackend. storage k)))
 
 (defn local-storage
