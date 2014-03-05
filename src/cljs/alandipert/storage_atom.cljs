@@ -35,7 +35,7 @@
 (defn link-storage
   [atom k]
   (.addEventListener js/window "storage"
-                     (maybe-load-backend atom k %)))
+                     #(maybe-load-backend atom k %)))
 
 ;;; mostly for tests
 

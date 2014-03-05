@@ -1,5 +1,5 @@
 (ns alandipert.storage-atom.test
-  (:require [alandipert.storage-atom :refer [local-storage load-local-storage] :as sa]
+  (:require [alandipert.storage-atom :refer [local-storage]]
             [tailrecursion.cljson :refer [clj->cljson cljson->clj]]))
 
 ;;; localStorage tests
@@ -17,7 +17,6 @@
 
 (def a2 (local-storage (atom 0 :validator even?) :foo))
 (assert (= @a2 0))
-(assert (= @a2 0 (load-local-storage :foo)))
 
 
 ;;; Can't test the 'update' event, because it's only fired
