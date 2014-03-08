@@ -15,6 +15,9 @@
   (-commit! [this value]
     (.setItem store (clj->cljson key) (clj->cljson value))))
 
+(def ^dynamic *watch-active* true)
+;; To prevent a save/load loop when changing the values quickly.
+
 (defn store
   [atom backend]
   (let [existing (-get backend ::none)]
@@ -22,15 +25,19 @@
       (-commit! backend @atom)
       (reset! atom existing))
     (doto atom
-      (add-watch ::storage-watch #(when-not (= %3 %4)
-                                    (-commit! backend %4))))))
+      (add-watch ::storage-watch 
+                 #(when (and *watch-active*
+                             (not= %3 %4))
+                    (-commit! backend %4))))))
 
 (defn maybe-load-backend
   [atom k e]
-  (let [sk (cljson->clj (.-key e))]
-    (when (= sk k) ;; is the stored key the one we are looking for?
-      (let [value (cljson->clj (.-newValue e))]
-        (reset! atom value)))))
+  (when (not-empty (.-key e))
+    (when-let [sk (cljson->clj (.-key e))]
+      (when (= sk k) ;; is the stored key the one we are looking for?
+        (let [value (cljson->clj (.-newValue e))]
+          (binding [*watch-active* false]
+            (reset! atom value)))))))
 
 (defn link-storage
   [atom k]
