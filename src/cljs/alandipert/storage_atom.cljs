@@ -15,7 +15,7 @@
   (-commit! [this value]
     (.setItem store (clj->cljson key) (clj->cljson value))))
 
-(def ^dynamic *watch-active* true)
+(def ^:dynamic *watch-active* true)
 ;; To prevent a save/load loop when changing the values quickly.
 
 (defn store
