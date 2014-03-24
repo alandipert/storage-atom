@@ -64,6 +64,19 @@ I haven't done any performance testing, but this approach is much
 slower than using web storage directly because the entire atom contents
 are written on every `swap!`.
 
+To prevent superfluous writes to the local storage, there is a 10 ms
+debounce. It can be modified with the `storage-delay` atom or the
+`*storage-delay* dynamic var. :
+
+```clj
+(reset! alandipert.storage-atom/storage-delay 100) ;; permanently increase debounce to 100 ms
+
+(binding [alandipert.storage-atom/*storage-delay* 500]
+	 ... do some stuff ... ) ;; temporarily increase debounce to 500 ms
+
+```
+
+
 [enduro](https://github.com/alandipert/enduro) is a Clojure library
 that provides similar functionality by using files or a database for
 storage.

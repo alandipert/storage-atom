@@ -1,5 +1,6 @@
 (ns alandipert.storage-atom
-  (:require [tailrecursion.cljson :refer [clj->cljson cljson->clj]]))
+  (:require [tailrecursion.cljson :refer [clj->cljson cljson->clj]]
+            [goog.Timer :as timer]))
 
 (defprotocol IStorageBackend
   "Represents a storage resource."
@@ -15,12 +16,32 @@
   (-commit! [this value]
     (.setItem store (clj->cljson key) (clj->cljson value))))
 
+
+(defn debounce-factory
+  "Return a function that will always store a future call into the
+  same atom. If recalled before the time is elapsed, the call is
+  replaced without being executed." []
+  (let [f (atom nil)]
+    (fn [func ttime]
+      (when @f
+        (timer/clear @f))
+      (reset! f (timer/callOnce func ttime)))))
+
+(def storage-delay
+  "Delay in ms before a change is committed to the local storage. If a
+new change occurs before the time is elapsed, the old change is
+discarded an only the new one is committed."
+  (atom 10))
+
+(def ^:dynamic *storage-delay* nil)
+
 (def ^:dynamic *watch-active* true)
 ;; To prevent a save/load loop when changing the values quickly.
 
 (defn store
   [atom backend]
-  (let [existing (-get backend ::none)]
+  (let [existing (-get backend ::none)
+        debounce (debounce-factory)]
     (if (= ::none existing)
       (-commit! backend @atom)
       (reset! atom existing))
@@ -28,7 +49,9 @@
       (add-watch ::storage-watch 
                  #(when (and *watch-active*
                              (not= %3 %4))
-                    (-commit! backend %4))))))
+                    (debounce (fn [](-commit! backend %4))
+                              (or *storage-delay*
+                                  @storage-delay)))))))
 
 (defn maybe-load-backend
   [atom k e]
