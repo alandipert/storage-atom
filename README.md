@@ -66,13 +66,17 @@ are written on every `swap!`.
 
 To prevent superfluous writes to the local storage, there is a 10 ms
 debounce. It can be modified with the `storage-delay` atom or the
-`*storage-delay* dynamic var. :
+`*storage-delay*` dynamic var. :
 
 ```clj
-(reset! alandipert.storage-atom/storage-delay 100) ;; permanently increase debounce to 100 ms
+(reset! alandipert.storage-atom/storage-delay 100) ;; permanently
+                                                   ;; increase
+                                                   ;; debounce to 100
+                                                   ;; ms
 
 (binding [alandipert.storage-atom/*storage-delay* 500]
-	 ... do some stuff ... ) ;; temporarily increase debounce to 500 ms
+	 ... do some stuff ... ) ;; temporarily increase debounce to
+                                 ;; 500 ms
 
 ```
 
