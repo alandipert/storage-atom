@@ -65,7 +65,8 @@ slower than using web storage directly because the entire atom contents
 are written on every `swap!`.
 
 To prevent superfluous writes to the local storage, there is a 10 ms
-debounce. It can be modified with the `storage-delay` atom or the
+debounce (when a bunch of changes happen quickly, the *last* value is
+committed). It can be modified with the `storage-delay` atom or the
 `*storage-delay*` dynamic var. :
 
 ```clj
