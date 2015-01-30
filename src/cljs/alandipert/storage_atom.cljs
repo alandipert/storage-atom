@@ -53,19 +53,33 @@ discarded an only the new one is committed."
                               (or *storage-delay*
                                   @storage-delay)))))))
 
-(defn maybe-load-backend
-  [atom k e]
-  (when (not-empty (.-key e))
-    (when-let [sk (cljson->clj (.-key e))]
-      (when (= sk k) ;; is the stored key the one we are looking for?
-        (let [value (cljson->clj (.-newValue e))]
-          (binding [*watch-active* false]
-            (reset! atom value)))))))
+(defn maybe-update-backend
+  [atom storage k e]
+  (when (identical? storage (.-storageArea e))
+    (if (empty? (.-key e)) ;; is all storage is being cleared?
+      (binding [*watch-active* false]
+        (reset! atom nil))
+      (when-let [sk (cljson->clj (.-key e))]
+        (when (= sk k) ;; is the stored key the one we are looking for?
+          (let [value (cljson->clj (.-newValue e))]
+            (binding [*watch-active* false]
+              (reset! atom value))))))))
 
 (defn link-storage
-  [atom k]
+  [atom storage k]
   (.addEventListener js/window "storage"
-                     #(maybe-load-backend atom k %)))
+                     #(maybe-update-backend atom storage k %)))
+
+(defn dispatch-remove-event!
+  "Create and dispatch a synthetic StorageEvent. Expects key to be a string.
+  An empty key indicates that all storage is being cleared."
+  [storage key]
+  (let [event (js/StorageEvent. "storage")]
+    (.initStorageEvent event "storage" false false key nil nil
+                       (-> js/window .-location .-href)
+                       storage)
+    (.dispatchEvent js/window event)
+    nil))
 
 ;;; mostly for tests
 
@@ -83,7 +97,7 @@ discarded an only the new one is committed."
 
 (defn html-storage
   [atom storage k]
-  (link-storage atom k)
+  (link-storage atom storage k)
   (store atom (StorageBackend. storage k)))
 
 (defn local-storage
@@ -93,3 +107,32 @@ discarded an only the new one is committed."
 (defn session-storage
   [atom k]
   (html-storage atom js/sessionStorage k))
+
+;; Methods to safely remove items from storage or clear storage entirely.
+
+(defn clear-html-storage!
+  "Clear storage and also trigger an event on the current window
+  so its atoms will be cleared as well."
+  [storage]
+  (.clear storage)
+  (dispatch-remove-event! storage ""))
+
+(defn clear-local-storage! []
+  (clear-html-storage! js/localStorage))
+
+(defn clear-session-storage! []
+  (clear-html-storage! js/sessionStorage))
+
+(defn remove-html-storage!
+  "Remove key from storage and also trigger an event on the current
+  window so its atoms will be cleared as well."
+  [storage k]
+  (let [key (clj->cljson k)]
+    (.removeItem storage key)
+    (dispatch-remove-event! storage key)))
+
+(defn remove-local-storage! [k]
+  (remove-html-storage! js/localStorage k))
+
+(defn remove-session-storage! [k]
+  (remove-html-storage! js/sessionStorage k))

@@ -53,6 +53,13 @@ The reverse is also true. This means that an atom modified in a tab
 ;; Check that current value has been stored in localStorage.
 
 (.getItem js/localStorage ":prefs") ;=> "{:bg-color \"red\"}"
+
+;; To remove an item or clear all storage, use the provided methods instead
+;; of calling the js method. This ensures that affected atoms are updated.
+
+(alandipert.storage-atom/remove-local-storage! :prefs) ;; remove single value
+(alandipert.storage-atom/clear-local-storage!)         ;; clear all values
+
 ```
 
 ## Notes
