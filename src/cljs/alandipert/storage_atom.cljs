@@ -46,7 +46,7 @@ discarded an only the new one is committed."
       (-commit! backend @atom)
       (reset! atom existing))
     (doto atom
-      (add-watch ::storage-watch 
+      (add-watch ::storage-watch
                  #(when (and *watch-active*
                              (not= %3 %4))
                     (debounce (fn [](-commit! backend %4))
@@ -54,21 +54,23 @@ discarded an only the new one is committed."
                                   @storage-delay)))))))
 
 (defn maybe-update-backend
-  [atom storage k e]
+  [atom storage k default e]
   (when (identical? storage (.-storageArea e))
     (if (empty? (.-key e)) ;; is all storage is being cleared?
       (binding [*watch-active* false]
-        (reset! atom nil))
+        (reset! atom default))
       (when-let [sk (cljson->clj (.-key e))]
         (when (= sk k) ;; is the stored key the one we are looking for?
-          (let [value (cljson->clj (.-newValue e))]
-            (binding [*watch-active* false]
-              (reset! atom value))))))))
+          (binding [*watch-active* false]
+            (reset! atom (if-let [value (.-newValue e)] ;; new value, or is key being removed?
+                           (cljson->clj value)
+                           default))))))))
 
 (defn link-storage
   [atom storage k]
-  (.addEventListener js/window "storage"
-                     #(maybe-update-backend atom storage k %)))
+  (let [default @atom]
+    (.addEventListener js/window "storage"
+                       #(maybe-update-backend atom storage k default %))))
 
 (defn dispatch-remove-event!
   "Create and dispatch a synthetic StorageEvent. Expects key to be a string.

@@ -60,6 +60,8 @@ The reverse is also true. This means that an atom modified in a tab
 (alandipert.storage-atom/remove-local-storage! :prefs) ;; remove single value
 (alandipert.storage-atom/clear-local-storage!)         ;; clear all values
 
+;; Note: clearing a value will reset it to the initial value of the atom passed
+;; to `local-storage`, not nil. This is probably what you want.
 ```
 
 ## Notes
