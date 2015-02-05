@@ -17,7 +17,7 @@ The reverse is also true. This means that an atom modified in a tab
 ### Dependency
 
 ```clojure
-[alandipert/storage-atom "1.2.3"]
+[alandipert/storage-atom "1.2.4"]
 ```
 
 ### Example
