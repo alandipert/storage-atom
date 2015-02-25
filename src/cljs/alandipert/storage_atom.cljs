@@ -59,12 +59,14 @@ discarded an only the new one is committed."
     (if (empty? (.-key e)) ;; is all storage is being cleared?
       (binding [*watch-active* false]
         (reset! atom default))
-      (when-let [sk (cljson->clj (.-key e))]
+      (try 
+        (when-let [sk (cljson->clj (.-key e))]
         (when (= sk k) ;; is the stored key the one we are looking for?
           (binding [*watch-active* false]
             (reset! atom (if-let [value (.-newValue e)] ;; new value, or is key being removed?
                            (cljson->clj value)
-                           default))))))))
+                           default)))))
+        (catch :default e)))))
 
 (defn link-storage
   [atom storage k]
