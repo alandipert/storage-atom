@@ -1,6 +1,7 @@
 (ns alandipert.storage-atom
   (:require [tailrecursion.cljson :refer [clj->cljson cljson->clj]]
-            [goog.Timer :as timer]))
+            [goog.Timer :as timer]
+            [clojure.string :as string]))
 
 (defprotocol IStorageBackend
   "Represents a storage resource."
@@ -62,9 +63,10 @@ discarded an only the new one is committed."
       (when-let [sk (cljson->clj (.-key e))]
         (when (= sk k) ;; is the stored key the one we are looking for?
           (binding [*watch-active* false]
-            (reset! atom (if-let [value (.-newValue e)] ;; new value, or is key being removed?
-                           (cljson->clj value)
-                           default))))))))
+            (reset! atom (let [value (.-newValue e)] ;; new value, or is key being removed?
+                           (if-not (string/blank? value)
+                             (cljson->clj value)
+                             default)))))))))
 
 (defn link-storage
   [atom storage k]
