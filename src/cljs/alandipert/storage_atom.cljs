@@ -76,7 +76,7 @@ discarded an only the new one is committed."
   "Create and dispatch a synthetic StorageEvent. Expects key to be a string.
   An empty key indicates that all storage is being cleared."
   [storage key]
-  (let [event (js/StorageEvent. "storage")]
+  (let [event (.createEvent js/document "StorageEvent")]
     (.initStorageEvent event "storage" false false key nil nil
                        (-> js/window .-location .-href)
                        storage)
