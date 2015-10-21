@@ -1,3 +1,8 @@
 language: clojure
-lein: lein2
-script: lein2 cljsbuild test
+jdk:
+- oraclejdk8
+install:
+- wget -O boot https://github.com/boot-clj/boot/releases/download/2.3.0/boot.sh
+- chmod 755 boot
+- export PATH="$PWD:$PATH"
+script: boot test-cljs | perl -pe 'END { exit $n } $n=1 if /FAIL/;'

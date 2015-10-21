@@ -20,6 +20,12 @@ The reverse is also true. This means that an atom modified in a tab
 [alandipert/storage-atom "1.2.4"]
 ```
 
+Or, to try the latest version that uses [Transit](https://github.com/cognitect/transit-cljs):
+
+```clojure
+[alandipert/storage-atom "2.0.0-SNAPSHOT"]
+```
+
 ### Example
 
 ```clojure
@@ -104,10 +110,10 @@ The cross-window propagation doesn't always work if browsing the
 [PhantomJS](http://phantomjs.org/) 1.7.0 is used for unit testing.
 With it installed, you can run the tests like so:
 
-    lein cljsbuild test
+    boot test-cljs
 
 ## License
 
-Copyright © 2013 Alan Dipert
+Copyright © Alan Dipert & Contributors
 
 Distributed under the Eclipse Public License, the same as Clojure.

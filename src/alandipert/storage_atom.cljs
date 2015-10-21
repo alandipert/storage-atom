@@ -1,7 +1,13 @@
 (ns alandipert.storage-atom
-  (:require [tailrecursion.cljson :refer [clj->cljson cljson->clj]]
+  (:require [cognitect.transit :as t]
             [goog.Timer :as timer]
             [clojure.string :as string]))
+
+(defn clj->json [x]
+  (t/write (t/writer :json) x))
+
+(defn json->clj [x]
+  (t/read (t/reader :json) x))
 
 (defprotocol IStorageBackend
   "Represents a storage resource."
@@ -11,11 +17,11 @@
 (deftype StorageBackend [store key]
   IStorageBackend
   (-get [this not-found]
-    (if-let [existing (.getItem store (clj->cljson key))]
-      (cljson->clj existing)
+    (if-let [existing (.getItem store (clj->json key))]
+      (json->clj existing)
       not-found))
   (-commit! [this value]
-    (.setItem store (clj->cljson key) (clj->cljson value))))
+    (.setItem store (clj->json key) (clj->json value))))
 
 
 (defn debounce-factory
@@ -60,12 +66,12 @@ discarded an only the new one is committed."
     (if (empty? (.-key e)) ;; is all storage is being cleared?
       (binding [*watch-active* false]
         (reset! atom default))
-      (when-let [sk (cljson->clj (.-key e))]
+      (when-let [sk (json->clj (.-key e))]
         (when (= sk k) ;; is the stored key the one we are looking for?
           (binding [*watch-active* false]
             (reset! atom (let [value (.-newValue e)] ;; new value, or is key being removed?
                            (if-not (string/blank? value)
-                             (cljson->clj value)
+                             (json->clj value)
                              default)))))))))
 
 (defn link-storage
@@ -131,7 +137,7 @@ discarded an only the new one is committed."
   "Remove key from storage and also trigger an event on the current
   window so its atoms will be cleared as well."
   [storage k]
-  (let [key (clj->cljson k)]
+  (let [key (clj->json k)]
     (.removeItem storage key)
     (dispatch-remove-event! storage key)))
 
