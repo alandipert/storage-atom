@@ -30,3 +30,15 @@
   (is (= (get-in @a3 [:x :y :z]) 42))
   (is (= (:some (meta a3)) :metadata)))
 
+
+(def a4 (local-storage
+         (atom {:xs [1 2 3]})
+         "k4"))
+
+(deftest test-collection-types-preserved
+  (swap! a4 update :xs conj 4)
+  (is (= (peek (get @a4 :xs)) 4))
+  (swap! a4 assoc :ys [#{1 2 3}])
+  (is (vector? (get @a4 :ys)))
+  (is (set? (first (get @a4 :ys))))
+  (is (= (get a4 :ys [#{1 2 3}]))))
