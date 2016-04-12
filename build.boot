@@ -17,7 +17,8 @@
 
 (task-options!
  test-cljs {:js-env :phantom
-            :exit? true}
+            :exit? true
+            :namespaces '#{alandipert.storage-atom.test}}
  pom  {:project     'alandipert/storage-atom
        :version     +version+
        :description "ClojureScript atoms backed by HTML5 web storage."
