@@ -3,11 +3,16 @@
             [goog.Timer :as timer]
             [clojure.string :as string]))
 
+
+(def transit-read-handlers (atom {}))
+
+(def transit-write-handlers (atom {}))
+
 (defn clj->json [x]
-  (t/write (t/writer :json) x))
+  (t/write (t/writer :json {:handlers @transit-write-handlers}) x))
 
 (defn json->clj [x]
-  (t/read (t/reader :json) x))
+  (t/read (t/reader :json {:handlers @transit-read-handlers}) x))
 
 (defprotocol IStorageBackend
   "Represents a storage resource."
