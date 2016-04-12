@@ -23,7 +23,7 @@ The reverse is also true. This means that an atom modified in a tab
 Or, to try the latest version that uses [Transit](https://github.com/cognitect/transit-cljs):
 
 ```clojure
-[alandipert/storage-atom "2.0.0"]
+[alandipert/storage-atom "2.0.1"]
 ```
 
 ### Example
