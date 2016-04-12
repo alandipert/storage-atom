@@ -11,7 +11,7 @@
 (require '[adzerk.bootlaces :refer :all]
          '[crisptrutski.boot-cljs-test :refer [test-cljs]])
 
-(def +version+ "2.0.0-SNAPSHOT")
+(def +version+ "2.0.0")
 
 (bootlaces! +version+)
 
