@@ -30,7 +30,7 @@ Or, to try the latest version that uses [Transit](https://github.com/cognitect/t
 
 ```clojure
 ;; Require or use alandipert.storage-atom in your namespace.
-;; The primary functions it provides are html-storage and local-storage.
+;; The primary functions it provides are html-storage, session-storage and local-storage.
 ;; It also provides the IStorageBackend protocol.
 
 (ns your-ns
