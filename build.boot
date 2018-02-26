@@ -4,7 +4,7 @@
                   [adzerk/boot-cljs            "1.7.48-3"        :scope "test"]
                   [adzerk/bootlaces            "0.1.10"          :scope "test"]
                   [crisptrutski/boot-cljs-test "0.2.0-SNAPSHOT" :scope "test"]
-                  [com.cognitect/transit-cljs  "0.8.225"]]
+                  [com.cognitect/transit-cljs  "0.8.243"]]
   :source-paths #{"test"}
   :resource-paths #{"src"})
 
