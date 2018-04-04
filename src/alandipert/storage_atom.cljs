@@ -28,6 +28,11 @@
   (-commit! [this value]
     (.setItem store (clj->json key) (clj->json value))))
 
+(defn exchange! [a x]
+  (let [y @a]
+    (if (compare-and-set! a y x)
+      y
+      (recur a x))))
 
 (defn debounce-factory
   "Return a function that will always store a future call into the
@@ -35,9 +40,14 @@
   replaced without being executed." []
   (let [f (atom nil)]
     (fn [func ttime]
-      (when @f
-        (timer/clear @f))
-      (reset! f (timer/callOnce func ttime)))))
+      (let [timed-func (when-not (= ttime :none)
+                         (timer/callOnce func ttime))
+            old-timed-func (exchange! f timed-func)]
+        (when old-timed-func
+          (timer/clear old-timed-func))
+        (when-not timed-func
+          (func))
+        nil))))
 
 (def storage-delay
   "Delay in ms before a change is committed to the local storage. If a
