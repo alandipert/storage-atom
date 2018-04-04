@@ -28,6 +28,11 @@
   (-commit! [this value]
     (.setItem store (clj->json key) (clj->json value))))
 
+(defn exchange! [a x]
+  (let [y @a]
+    (if (compare-and-set! a y x)
+      y
+      (recur a x))))
 
 (defn debounce-factory
   "Return a function that will always store a future call into the
@@ -35,9 +40,14 @@
   replaced without being executed." []
   (let [f (atom nil)]
     (fn [func ttime]
-      (when @f
-        (timer/clear @f))
-      (reset! f (timer/callOnce func ttime)))))
+      (let [timed-func (when-not (= ttime :none)
+                         (timer/callOnce func ttime))
+            old-timed-func (exchange! f timed-func)]
+        (when old-timed-func
+          (timer/clear old-timed-func))
+        (when-not timed-func
+          (func))
+        nil))))
 
 (def storage-delay
   "Delay in ms before a change is committed to the local storage. If a
@@ -87,16 +97,23 @@ discarded an only the new one is committed."
     (.addEventListener js/window "storage"
                        #(maybe-update-backend atom storage k default %))))
 
-(defn dispatch-remove-event!
-  "Create and dispatch a synthetic StorageEvent. Expects key to be a string.
-  An empty key indicates that all storage is being cleared."
-  [storage key]
-  (let [event (.createEvent js/document "StorageEvent")]
-    (.initStorageEvent event "storage" false false key nil nil
-                       (-> js/window .-location .-href)
-                       storage)
-    (.dispatchEvent js/window event)
-    nil))
+(defn dispatch-synthetic-event!
+  "Create and dispatch a synthetic StorageEvent. Expects `key` to be a string
+  and `value` to be a string or nil.  An empty `key` indicates that all
+  storage is being cleared.  A nil or empty `value` indicates that the key is
+  being removed."
+  [storage key value]
+  (.dispatchEvent js/window
+                  (doto (.createEvent js/document "StorageEvent")
+                    (.initStorageEvent "storage"
+                                       false
+                                       false
+                                       key
+                                       nil
+                                       value
+                                       (.. js/window -location -href)
+                                       storage)))
+  nil)
 
 ;;; mostly for tests
 
@@ -132,7 +149,7 @@ discarded an only the new one is committed."
   so its atoms will be cleared as well."
   [storage]
   (.clear storage)
-  (dispatch-remove-event! storage ""))
+  (dispatch-synthetic-event! storage "" nil))
 
 (defn clear-local-storage! []
   (clear-html-storage! js/localStorage))
@@ -146,7 +163,7 @@ discarded an only the new one is committed."
   [storage k]
   (let [key (clj->json k)]
     (.removeItem storage key)
-    (dispatch-remove-event! storage key)))
+    (dispatch-synthetic-event! storage key nil)))
 
 (defn remove-local-storage! [k]
   (remove-html-storage! js/localStorage k))
