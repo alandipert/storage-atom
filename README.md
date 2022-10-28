@@ -97,6 +97,12 @@ committed). It can be modified with the `storage-delay` atom or the
 ```
 
 
+It's possible to modify the contents of the atom on the way into storage
+and back out again using the optional arguments `pre-clean-fn` and
+`post-clean-fn`. Both are a function that takes the value and transforms
+is a) before persisting and b) after restore but before swapping back in.
+
+
 [enduro](https://github.com/alandipert/enduro) is a Clojure library
 that provides similar functionality by using files or a database for
 storage.
