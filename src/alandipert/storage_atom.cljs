@@ -19,14 +19,14 @@
   (-get [this not-found])
   (-commit! [this value] "Commit value to storage at location."))
 
-(deftype StorageBackend [store key]
+(deftype StorageBackend [store key pre-clean-fn]
   IStorageBackend
   (-get [_this not-found]
     (if-let [existing (.getItem store (clj->json key))]
       (json->clj existing)
       not-found))
   (-commit! [_this value]
-    (.setItem store (clj->json key) (clj->json value))))
+    (.setItem store (clj->json key) (clj->json ((or pre-clean-fn identity) value)))))
 
 
 (defn debounce-factory
@@ -102,7 +102,7 @@ discarded an only the new one is committed."
 
 (defn load-html-storage
   [storage k]
-  (-get (StorageBackend. storage k) nil))
+  (-get (StorageBackend. storage k nil) nil))
 
 (defn load-local-storage [k]
   (load-html-storage js/localStorage k))
@@ -113,17 +113,17 @@ discarded an only the new one is committed."
 ;;; main API
 
 (defn html-storage
-  [atom storage k]
+  [atom storage k pre-clean-fn]
   (link-storage atom storage k)
-  (store atom (StorageBackend. storage k)))
+  (store atom (StorageBackend. storage k pre-clean-fn)))
 
 (defn local-storage
-  [atom k]
-  (html-storage atom js/localStorage k))
+  [atom k & [pre-clean-fn]]
+  (html-storage atom js/localStorage k pre-clean-fn))
 
 (defn session-storage
-  [atom k]
-  (html-storage atom js/sessionStorage k))
+  [atom k & [pre-clean-fn]]
+  (html-storage atom js/sessionStorage k pre-clean-fn))
 
 ;; Methods to safely remove items from storage or clear storage entirely.
 
