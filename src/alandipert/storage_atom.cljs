@@ -21,11 +21,11 @@
 
 (deftype StorageBackend [store key]
   IStorageBackend
-  (-get [this not-found]
+  (-get [_this not-found]
     (if-let [existing (.getItem store (clj->json key))]
       (json->clj existing)
       not-found))
-  (-commit! [this value]
+  (-commit! [_this value]
     (.setItem store (clj->json key) (clj->json value))))
 
 
@@ -79,7 +79,7 @@ discarded an only the new one is committed."
                              (if-not (string/blank? value)
                                (json->clj value)
                                default))))))
-        (catch :default e)))))
+        (catch :default _e)))))
 
 (defn link-storage
   [atom storage k]
