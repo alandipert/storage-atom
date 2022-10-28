@@ -19,11 +19,11 @@
   (-get [this not-found])
   (-commit! [this value] "Commit value to storage at location."))
 
-(deftype StorageBackend [store key pre-clean-fn]
+(deftype StorageBackend [store key pre-clean-fn post-clean-fn]
   IStorageBackend
   (-get [_this not-found]
     (if-let [existing (.getItem store (clj->json key))]
-      (json->clj existing)
+      ((or post-clean-fn identity) (json->clj existing))
       not-found))
   (-commit! [_this value]
     (.setItem store (clj->json key) (clj->json ((or pre-clean-fn identity) value)))))
@@ -66,7 +66,7 @@ discarded an only the new one is committed."
                                   @storage-delay)))))))
 
 (defn maybe-update-backend
-  [atom storage k default e]
+  [atom storage k default post-clean-fn e]
   (when (identical? storage (.-storageArea e))
     (if (empty? (.-key e)) ;; is all storage is being cleared?
       (binding [*watch-active* false]
@@ -77,15 +77,15 @@ discarded an only the new one is committed."
             (binding [*watch-active* false]
               (reset! atom (let [value (.-newValue e)] ;; new value, or is key being removed?
                              (if-not (string/blank? value)
-                               (json->clj value)
+                               ((or post-clean-fn identity) (json->clj value))
                                default))))))
         (catch :default _e)))))
 
 (defn link-storage
-  [atom storage k]
+  [atom storage k post-clean-fn]
   (let [default @atom]
     (.addEventListener js/window "storage"
-                       #(maybe-update-backend atom storage k default %))))
+                       #(maybe-update-backend atom storage k default post-clean-fn %))))
 
 (defn dispatch-remove-event!
   "Create and dispatch a synthetic StorageEvent. Expects key to be a string.
@@ -102,7 +102,7 @@ discarded an only the new one is committed."
 
 (defn load-html-storage
   [storage k]
-  (-get (StorageBackend. storage k nil) nil))
+  (-get (StorageBackend. storage k nil nil) nil))
 
 (defn load-local-storage [k]
   (load-html-storage js/localStorage k))
@@ -113,17 +113,17 @@ discarded an only the new one is committed."
 ;;; main API
 
 (defn html-storage
-  [atom storage k pre-clean-fn]
-  (link-storage atom storage k)
-  (store atom (StorageBackend. storage k pre-clean-fn)))
+  [atom storage k pre-clean-fn post-clean-fn]
+  (link-storage atom storage k post-clean-fn)
+  (store atom (StorageBackend. storage k pre-clean-fn post-clean-fn)))
 
 (defn local-storage
-  [atom k & [pre-clean-fn]]
-  (html-storage atom js/localStorage k pre-clean-fn))
+  [atom k & [pre-clean-fn post-clean-fn]]
+  (html-storage atom js/localStorage k pre-clean-fn post-clean-fn))
 
 (defn session-storage
-  [atom k & [pre-clean-fn]]
-  (html-storage atom js/sessionStorage k pre-clean-fn))
+  [atom k & [pre-clean-fn post-clean-fn]]
+  (html-storage atom js/sessionStorage k pre-clean-fn post-clean-fn))
 
 ;; Methods to safely remove items from storage or clear storage entirely.
 
