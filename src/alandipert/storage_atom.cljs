@@ -23,7 +23,7 @@
   IStorageBackend
   (-get [_this not-found]
     (if-let [existing (.getItem store (clj->json key))]
-      ((or post-clean-fn identity) (json->clj existing))
+      ((or post-clean-fn identity) (json->clj existing) nil)
       not-found))
   (-commit! [_this value]
     (.setItem store (clj->json key) (clj->json ((or pre-clean-fn identity) value)))))
@@ -77,7 +77,7 @@ discarded an only the new one is committed."
             (binding [*watch-active* false]
               (reset! atom (let [value (.-newValue e)] ;; new value, or is key being removed?
                              (if-not (string/blank? value)
-                               ((or post-clean-fn identity) (json->clj value))
+                               ((or post-clean-fn identity) (json->clj value) @atom)
                                default))))))
         (catch :default _e)))))
 
